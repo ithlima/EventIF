@@ -1,0 +1,15 @@
+.git
+.gitignore
+target/
+build/
+.idea/
+.vscode/
+*.iml
+*.log
+logs/
+.env
+.env.*
+docs/
+AGENTS.md
+EventIF_Antigravity_Prompts.md
+README.md
