@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: page('Meus Eventos', ~{::#conteudo-pagina})}">
+<body>
+<div id="conteudo-pagina" class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div>
+            <h1 class="h2 mb-1">Meus Eventos</h1>
+            <p class="text-muted small mb-0">Gerencie seus eventos, publique a programação e acompanhe as atividades.</p>
+        </div>
+        <a th:href="@{/organizador/eventos/novo}" class="btn btn-eventif btn-sm">Novo evento</a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(eventos)}" class="eventif-empty-state shadow-sm">
+        <h2 class="h5 mb-2">Você ainda não cadastrou eventos</h2>
+        <p class="text-muted small mb-3">Crie seu primeiro evento como rascunho para adicionar atividades e publicar.</p>
+        <a th:href="@{/organizador/eventos/novo}" class="btn btn-eventif btn-sm">Criar primeiro evento</a>
+    </div>
+
+    <div th:if="${!#lists.isEmpty(eventos)}" class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>Evento</th>
+                    <th>Categoria</th>
+                    <th>Período</th>
+                    <th>Local</th>
+                    <th>Status</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="evento : ${eventos}">
+                    <td>
+                        <div class="fw-semibold" th:text="${evento.titulo}">Evento</div>
+                        <a th:if="${evento.status.name() != 'RASCUNHO'}"
+                           th:href="@{/eventos/{id}(id=${evento.id})}"
+                           class="small text-muted text-decoration-none">Ver página pública</a>
+                    </td>
+                    <td th:text="${evento.categoriaNome}">Categoria</td>
+                    <td class="small">
+                        <span th:text="${#temporals.format(evento.dataInicio, 'dd/MM/yyyy')}">01/12/2026</span>
+                        <span th:if="${evento.dataFim != evento.dataInicio}">
+                            a <span th:text="${#temporals.format(evento.dataFim, 'dd/MM/yyyy')}">03/12/2026</span>
+                        </span>
+                    </td>
+                    <td th:text="${evento.local}">Campus</td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${evento.status.name() == 'PUBLICADO'} ? 'bg-success' : (${evento.status.name() == 'RASCUNHO'} ? 'bg-warning text-dark' : 'bg-secondary')"
+                              th:text="${evento.status.descricao}">Rascunho</span>
+                    </td>
+                    <td class="text-end">
+                        <div class="d-inline-flex flex-wrap justify-content-end gap-1">
+                            <a th:href="@{/organizador/eventos/{id}/atividades(id=${evento.id})}"
+                               class="btn btn-outline-primary btn-sm">Atividades</a>
+
+                            <a th:if="${evento.status.name() != 'ENCERRADO'}"
+                               th:href="@{/organizador/eventos/{id}/editar(id=${evento.id})}"
+                               class="btn btn-outline-secondary btn-sm">Editar</a>
+
+                            <form th:if="${evento.status.name() == 'RASCUNHO'}"
+                                  th:action="@{/organizador/eventos/{id}/publicar(id=${evento.id})}"
+                                  method="post" class="d-inline">
+                                <button type="submit" class="btn btn-eventif btn-sm">Publicar</button>
+                            </form>
+
+                            <form th:if="${evento.status.name() == 'PUBLICADO'}"
+                                  th:action="@{/organizador/eventos/{id}/encerrar(id=${evento.id})}"
+                                  method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-dark btn-sm">Encerrar</button>
+                            </form>
+
+                            <form th:if="${evento.status.name() != 'ENCERRADO'}"
+                                  th:action="@{/organizador/eventos/{id}/excluir(id=${evento.id})}"
+                                  method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Excluir</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: page('Administração — Usuários', ~{::#conteudo-pagina})}">
+<body>
+<div id="conteudo-pagina" class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div>
+            <h1 class="h2 mb-1">Administração de Usuários</h1>
+            <p class="text-muted small mb-0">Visualize as contas cadastradas e conceda ou retire o perfil de organizador.</p>
+        </div>
+        <ul class="nav nav-pills gap-1">
+            <li class="nav-item">
+                <a class="nav-link text-success" th:href="@{/admin/categorias}">Categorias</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active eventif-pill-active" th:href="@{/admin/usuarios}">Usuários</a>
+            </li>
+        </ul>
+    </div>
+
+    <div th:if="${#lists.isEmpty(usuarios)}" class="eventif-empty-state shadow-sm">
+        <h2 class="h5 mb-2">Nenhum usuário cadastrado</h2>
+        <p class="text-muted small mb-0">Ainda não existem contas registradas no sistema.</p>
+    </div>
+
+    <div th:if="${!#lists.isEmpty(usuarios)}" class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>E-mail</th>
+                    <th>Status</th>
+                    <th>Perfis</th>
+                    <th class="text-end">Perfil de Organizador</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="u : ${usuarios}">
+                    <td class="fw-semibold" th:text="${u.nome}">Usuário</td>
+                    <td th:text="${u.email}">usuario@eventif.edu.br</td>
+                    <td>
+                        <span th:if="${u.ativo}" class="badge bg-success-subtle text-success-emphasis">Ativo</span>
+                        <span th:if="${!u.ativo}" class="badge bg-secondary">Inativo</span>
+                    </td>
+                    <td>
+                        <div class="d-inline-flex flex-wrap gap-1">
+                            <span th:if="${u.admin}" class="badge bg-dark">ADMIN</span>
+                            <span th:if="${u.organizador}" class="badge bg-primary">ORGANIZADOR</span>
+                            <span th:if="${u.participante}" class="badge bg-success">PARTICIPANTE</span>
+                        </div>
+                    </td>
+                    <td class="text-end">
+                        <span th:if="${u.admin}" class="badge bg-light text-muted border">
+                            Conta administrativa protegida
+                        </span>
+
+                        <form th:if="${!u.admin and !u.organizador}"
+                              th:action="@{/admin/usuarios/{id}/conceder-organizador(id=${u.id})}"
+                              method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                Conceder Organizador
+                            </button>
+                        </form>
+
+                        <form th:if="${!u.admin and u.organizador}"
+                              th:action="@{/admin/usuarios/{id}/remover-organizador(id=${u.id})}"
+                              method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                Remover Organizador
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

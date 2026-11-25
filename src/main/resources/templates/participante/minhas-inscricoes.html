@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: page('Minhas Inscrições', ~{::#conteudo-pagina})}">
+<body>
+<div id="conteudo-pagina" class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div>
+            <h1 class="h2 mb-1">Minhas Inscrições</h1>
+            <p class="text-muted small mb-0">Acompanhe suas atividades confirmadas, presenças e certificados liberados.</p>
+        </div>
+        <a th:href="@{/}" class="btn btn-outline-eventif btn-sm">Explorar eventos</a>
+    </div>
+
+    <div th:if="${#lists.isEmpty(inscricoes) and #lists.isEmpty(listaEspera)}" class="eventif-empty-state shadow-sm">
+        <h2 class="h5 mb-2">Nenhuma inscrição realizada</h2>
+        <p class="text-muted small mb-3">Você ainda não se inscreveu em nenhuma atividade.</p>
+        <a th:href="@{/}" class="btn btn-eventif btn-sm">Ver eventos publicados</a>
+    </div>
+
+    <div th:if="${!#lists.isEmpty(inscricoes)}" class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>Evento</th>
+                    <th>Atividade</th>
+                    <th>Data e horário</th>
+                    <th>Carga horária</th>
+                    <th>Presença</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${inscricoes}">
+                    <td>
+                        <a class="fw-semibold text-decoration-none"
+                           th:href="@{/eventos/{id}(id=${item.eventoId})}"
+                           th:text="${item.eventoTitulo}">Evento</a>
+                        <div class="small text-muted" th:text="${item.eventoStatus.descricao}">Publicado</div>
+                    </td>
+                    <td>
+                        <div class="fw-semibold" th:text="${item.atividadeTitulo}">Atividade</div>
+                        <div class="small text-muted" th:text="${item.atividadeTipo.descricao}">Palestra</div>
+                    </td>
+                    <td class="small">
+                        <div th:text="${#temporals.format(item.inicio, 'dd/MM/yyyy HH:mm')}">01/12/2026 09:00</div>
+                        <div class="text-muted" th:text="'até ' + ${#temporals.format(item.fim, 'dd/MM/yyyy HH:mm')}">até 01/12/2026 11:00</div>
+                    </td>
+                    <td th:text="${item.cargaHoraria} + 'h'">2h</td>
+                    <td>
+                        <span th:if="${item.presente}" class="badge bg-success">Presença confirmada</span>
+                        <span th:if="${!item.presente and item.eventoStatus.name() == 'ENCERRADO'}"
+                              class="badge bg-secondary">Ausente</span>
+                        <span th:if="${!item.presente and item.eventoStatus.name() != 'ENCERRADO'}"
+                              class="badge bg-warning text-dark">Aguardando registro</span>
+                    </td>
+                    <td class="text-end">
+                        <div class="d-inline-flex flex-wrap justify-content-end gap-2 align-items-center">
+                            <a th:if="${item.certificadoDisponivel}"
+                               th:href="@{/certificados/eventos/{id}(id=${item.eventoId})}"
+                               class="btn btn-outline-eventif btn-sm">
+                                Emitir certificado
+                            </a>
+                            <a th:if="${item.certificadoDisponivel}"
+                               th:href="@{/certificados/eventos/{id}/pdf(id=${item.eventoId})}"
+                               class="btn btn-eventif btn-sm">
+                                Baixar PDF
+                            </a>
+
+                            <form th:if="${item.cancelavel}"
+                                  th:action="@{/inscricoes/{id}/cancelar(id=${item.inscricaoId})}"
+                                  method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">Cancelar</button>
+                            </form>
+
+                            <span th:if="${!item.cancelavel}" class="small text-muted">Prazo encerrado</span>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div th:if="${!#lists.isEmpty(listaEspera)}" class="card shadow-sm mt-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h2 class="h5 mb-0">Minha Lista de Espera</h2>
+            <span class="small text-muted">Promoção automática por ordem de chegada em caso de desistência</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>Posição</th>
+                    <th>Evento</th>
+                    <th>Atividade</th>
+                    <th>Data e horário</th>
+                    <th>Carga horária</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="espera : ${listaEspera}">
+                    <td>
+                        <span class="badge bg-info text-dark" th:text="'#' + ${espera.posicaoFila}">#1</span>
+                    </td>
+                    <td>
+                        <a class="fw-semibold text-decoration-none"
+                           th:href="@{/eventos/{id}(id=${espera.eventoId})}"
+                           th:text="${espera.eventoTitulo}">Evento</a>
+                    </td>
+                    <td>
+                        <div class="fw-semibold" th:text="${espera.atividadeTitulo}">Atividade</div>
+                        <div class="small text-muted" th:text="${espera.atividadeTipo.descricao}">Oficina</div>
+                    </td>
+                    <td class="small">
+                        <div th:text="${#temporals.format(espera.inicio, 'dd/MM/yyyy HH:mm')}">01/12/2026 09:00</div>
+                        <div class="text-muted" th:text="'até ' + ${#temporals.format(espera.fim, 'dd/MM/yyyy HH:mm')}">até 01/12/2026 11:00</div>
+                    </td>
+                    <td th:text="${espera.cargaHoraria} + 'h'">2h</td>
+                    <td class="text-end">
+                        <form th:action="@{/inscricoes/espera/{id}/cancelar(id=${espera.listaEsperaId})}"
+                              method="post" class="d-inline">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Sair da fila</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

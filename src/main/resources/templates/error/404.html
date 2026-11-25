@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: page('Não encontrado', ~{::#conteudo-pagina})}">
+<body>
+<div id="conteudo-pagina" class="container py-5">
+    <div class="alert alert-warning shadow-sm p-4" role="alert">
+        <h1 class="h4 alert-heading">Recurso não encontrado (404)</h1>
+        <p class="mb-3" th:text="${detalheErro ?: 'O registro solicitado não foi encontrado ou não está disponível.'}">
+            O registro solicitado não foi encontrado ou não está disponível.
+        </p>
+        <a class="btn btn-outline-secondary btn-sm" th:href="@{/}">Voltar à página inicial</a>
+    </div>
+</div>
+</body>
+</html>

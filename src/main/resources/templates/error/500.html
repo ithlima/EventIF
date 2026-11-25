@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: page('Erro interno', ~{::#conteudo-pagina})}">
+<body>
+<div id="conteudo-pagina" class="container py-5">
+    <div class="alert alert-danger shadow-sm p-4" role="alert">
+        <h1 class="h4 alert-heading">Ocorreu um erro inesperado</h1>
+        <p class="mb-3">Não foi possível processar sua solicitação no momento. Tente novamente em instantes.</p>
+        <a class="btn btn-outline-danger btn-sm" th:href="@{/}">Voltar à página inicial</a>
+    </div>
+</div>
+</body>
+</html>

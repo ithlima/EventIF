@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: page('Inscritos e Presença — ' + ${atividade.titulo}, ~{::#conteudo-pagina})}">
+<body>
+<div id="conteudo-pagina" class="container py-4">
+    <div class="mb-3">
+        <a th:href="@{/organizador/eventos/{eId}/atividades(eId=${evento.id})}"
+           class="btn btn-outline-secondary btn-sm">Voltar para atividades</a>
+    </div>
+
+    <section class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h1 class="h3 mb-3" th:text="${atividade.titulo}">Atividade</h1>
+            <div class="eventif-meta-grid">
+                <div>
+                    <span class="eventif-meta-label">Evento</span>
+                    <span class="eventif-meta-value" th:text="${evento.titulo}">Evento</span>
+                </div>
+                <div>
+                    <span class="eventif-meta-label">Tipo</span>
+                    <span class="eventif-meta-value" th:text="${atividade.tipo.descricao}">Palestra</span>
+                </div>
+                <div>
+                    <span class="eventif-meta-label">Ocupação</span>
+                    <span class="eventif-meta-value" th:text="${atividade.inscritos} + '/' + ${atividade.vagas}">0/30</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div th:if="${#lists.isEmpty(inscritos)}" class="eventif-empty-state shadow-sm">
+        <h2 class="h5 mb-2">Nenhum inscrito registrado</h2>
+        <p class="text-muted small mb-0">Nenhum participante se inscreveu nesta atividade até o momento.</p>
+    </div>
+
+    <form th:if="${!#lists.isEmpty(inscritos)}"
+          th:action="@{/organizador/eventos/{eId}/atividades/{aId}/inscritos(eId=${evento.id}, aId=${atividade.id})}"
+          method="post"
+          class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                <tr>
+                    <th style="width: 90px;">Presente</th>
+                    <th>Participante</th>
+                    <th>E-mail</th>
+                    <th>Data da inscrição</th>
+                    <th>Situação</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="insc : ${inscritos}">
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="presentesIds"
+                                   th:id="'presenca_' + ${insc.inscricaoId}"
+                                   th:value="${insc.inscricaoId}"
+                                   th:checked="${insc.presente}">
+                        </div>
+                    </td>
+                    <td>
+                        <label class="form-check-label fw-semibold"
+                               th:for="'presenca_' + ${insc.inscricaoId}"
+                               th:text="${insc.usuarioNome}">Participante</label>
+                    </td>
+                    <td th:text="${insc.usuarioEmail}">participante@eventif.edu.br</td>
+                    <td class="small" th:text="${#temporals.format(insc.dataHoraInscricao, 'dd/MM/yyyy HH:mm')}">01/12/2026 10:00</td>
+                    <td>
+                        <span th:if="${insc.presente}" class="badge bg-success">Presente</span>
+                        <span th:if="${!insc.presente}" class="badge bg-secondary">Não confirmado</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer bg-white d-flex justify-content-end py-3">
+            <button type="submit" class="btn btn-eventif">Salvar presenças</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      th:replace="~{fragments/layout :: page(${evento.titulo}, ~{::#conteudo-pagina})}">
+<body>
+<div id="conteudo-pagina" class="container py-4">
+    <div class="mb-3">
+        <a th:href="@{/}" class="btn btn-outline-secondary btn-sm">Voltar para eventos</a>
+    </div>
+
+    <section class="card shadow-sm mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <span class="badge eventif-badge-categoria" th:text="${evento.categoriaNome}">Categoria</span>
+                <span class="badge"
+                      th:classappend="${evento.status.name() == 'PUBLICADO'} ? 'bg-success' : 'bg-secondary'"
+                      th:text="${evento.status.descricao}">Publicado</span>
+            </div>
+
+            <h1 class="h2 mb-3" th:text="${evento.titulo}">Título do Evento</h1>
+            <p class="text-secondary mb-4" style="max-width: 75ch; white-space: pre-line;" th:text="${evento.descricao}">
+                Descrição completa.
+            </p>
+
+            <div class="eventif-meta-grid">
+                <div>
+                    <span class="eventif-meta-label">Período do evento</span>
+                    <span class="eventif-meta-value">
+                        <span th:text="${#temporals.format(evento.dataInicio, 'dd/MM/yyyy')}">01/12/2026</span>
+                        <span th:if="${evento.dataFim != evento.dataInicio}">
+                            a <span th:text="${#temporals.format(evento.dataFim, 'dd/MM/yyyy')}">03/12/2026</span>
+                        </span>
+                    </span>
+                </div>
+                <div>
+                    <span class="eventif-meta-label">Local</span>
+                    <span class="eventif-meta-value" th:text="${evento.local}">Auditório</span>
+                </div>
+                <div>
+                    <span class="eventif-meta-label">Organização</span>
+                    <span class="eventif-meta-value" th:text="${evento.organizadorNome}">Organizador</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="card shadow-sm">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h2 class="h5 mb-0">Programação e Atividades</h2>
+            <span class="small text-muted" th:text="${#lists.size(evento.atividades)} + ' atividade(s)'">0 atividade(s)</span>
+        </div>
+
+        <div class="card-body" th:if="${#lists.isEmpty(evento.atividades)}">
+            <p class="text-muted mb-0">Nenhuma atividade cadastrada para este evento até o momento.</p>
+        </div>
+
+        <div class="table-responsive" th:if="${!#lists.isEmpty(evento.atividades)}">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>Atividade</th>
+                    <th>Tipo</th>
+                    <th>Ministrante</th>
+                    <th>Horário</th>
+                    <th>Carga horária</th>
+                    <th>Vagas</th>
+                    <th class="text-end">Inscrição</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="atv : ${evento.atividades}">
+                    <td class="fw-semibold" th:text="${atv.titulo}">Título da Atividade</td>
+                    <td><span class="badge text-bg-light border" th:text="${atv.tipo.descricao}">Palestra</span></td>
+                    <td th:text="${atv.ministrante}">Ministrante</td>
+                    <td class="small">
+                        <div th:text="${#temporals.format(atv.inicio, 'dd/MM/yyyy HH:mm')}">01/12/2026 09:00</div>
+                        <div class="text-muted" th:text="'até ' + ${#temporals.format(atv.fim, 'dd/MM/yyyy HH:mm')}">até 01/12/2026 11:00</div>
+                    </td>
+                    <td th:text="${atv.cargaHoraria} + 'h'">2h</td>
+                    <td class="small">
+                        <div>
+                            <strong th:text="${atv.vagasRestantes}">10</strong>
+                            <span>restantes</span>
+                        </div>
+                        <div class="text-muted" th:text="${atv.inscritos} + '/' + ${atv.vagas} + ' ocupadas'">0/10 ocupadas</div>
+                        <span th:if="${atv.esgotada}" class="badge bg-danger-subtle text-danger-emphasis">Esgotada</span>
+                        <span th:if="${atv.totalListaEspera > 0}" class="small text-muted d-block mt-1"
+                              th:text="${atv.totalListaEspera} + ' na fila'">0 na fila</span>
+                    </td>
+                    <td class="text-end">
+                        <span th:if="${evento.status.name() != 'PUBLICADO'}" class="badge bg-secondary">
+                            Inscrições encerradas
+                        </span>
+
+                        <div th:if="${evento.status.name() == 'PUBLICADO'}">
+                            <div sec:authorize="hasRole('PARTICIPANTE')">
+                                <span th:if="${atv.inscritoUsuarioAtual}" class="badge bg-success">Inscrito</span>
+                                <span th:if="${!atv.inscritoUsuarioAtual and atv.emListaEsperaUsuarioAtual}"
+                                      class="badge bg-info text-dark">Na lista de espera</span>
+                                <form th:if="${!atv.inscritoUsuarioAtual and !atv.emListaEsperaUsuarioAtual and atv.esgotada}"
+                                      th:action="@{/inscricoes/atividades/{id}/espera(id=${atv.id})}"
+                                      method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-warning text-dark btn-sm">Lista de espera</button>
+                                </form>
+                                <form th:if="${!atv.inscritoUsuarioAtual and !atv.esgotada}"
+                                      th:action="@{/inscricoes/atividades/{id}(id=${atv.id})}"
+                                      method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-eventif btn-sm">Inscrever-se</button>
+                                </form>
+                            </div>
+
+                            <div sec:authorize="isAnonymous()">
+                                <span th:if="${atv.esgotada}" class="badge bg-danger">Sem vagas</span>
+                                <a th:if="${!atv.esgotada}" th:href="@{/login}" class="btn btn-outline-eventif btn-sm">
+                                    Entre para se inscrever
+                                </a>
+                            </div>
+
+                            <div sec:authorize="isAuthenticated() and !hasRole('PARTICIPANTE')">
+                                <span class="text-muted small">Disponível para participantes</span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+</body>
+</html>

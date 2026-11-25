@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: page(${modoEdicao} ? 'Editar Evento' : 'Novo Evento', ~{::#conteudo-pagina})}">
+<body>
+<div id="conteudo-pagina" class="container py-4">
+    <div class="mb-3">
+        <a th:href="@{/organizador/eventos}" class="btn btn-outline-secondary btn-sm">Voltar para Meus Eventos</a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="h3 mb-2" th:text="${modoEdicao} ? 'Editar Evento' : 'Novo Evento'">Novo Evento</h1>
+                    <p class="text-muted small mb-4">
+                        Eventos novos iniciam em rascunho. Para eventos de um único dia, informe a mesma data no início e término.
+                    </p>
+
+                    <div th:if="${erroNegocio}" class="alert alert-danger" role="alert" th:text="${erroNegocio}">
+                        Erro de validação.
+                    </div>
+
+                    <form th:action="${modoEdicao} ? @{/organizador/eventos/{id}(id=${eventoId})} : @{/organizador/eventos}"
+                          th:object="${eventoForm}" method="post" novalidate>
+                        <div class="mb-3">
+                            <label for="titulo" class="form-label">Título do evento</label>
+                            <input type="text" id="titulo" th:field="*{titulo}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('titulo')} ? ' is-invalid'" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('titulo')}" th:errors="*{titulo}"></div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="categoriaId" class="form-label">Categoria</label>
+                                <select id="categoriaId" th:field="*{categoriaId}" class="form-select"
+                                        th:classappend="${#fields.hasErrors('categoriaId')} ? ' is-invalid'" required>
+                                    <option value="">Selecione uma categoria...</option>
+                                    <option th:each="cat : ${categorias}"
+                                            th:value="${cat.id}"
+                                            th:text="${cat.nome}">Categoria</option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('categoriaId')}" th:errors="*{categoriaId}"></div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="local" class="form-label">Local</label>
+                                <input type="text" id="local" th:field="*{local}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('local')} ? ' is-invalid'" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('local')}" th:errors="*{local}"></div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label for="dataInicio" class="form-label">Data de início</label>
+                                <input type="date" id="dataInicio" th:field="*{dataInicio}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('dataInicio')} ? ' is-invalid'" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('dataInicio')}" th:errors="*{dataInicio}"></div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="dataFim" class="form-label">Data de término</label>
+                                <input type="date" id="dataFim" th:field="*{dataFim}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('dataFim')} ? ' is-invalid'" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('dataFim')}" th:errors="*{dataFim}"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="descricao" class="form-label">Descrição</label>
+                            <textarea id="descricao" th:field="*{descricao}" rows="4" class="form-control"
+                                      th:classappend="${#fields.hasErrors('descricao')} ? ' is-invalid'" required></textarea>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('descricao')}" th:errors="*{descricao}"></div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-eventif">
+                                <span th:text="${modoEdicao} ? 'Salvar alterações' : 'Criar evento (Rascunho)'">Salvar</span>
+                            </button>
+                            <a th:href="@{/organizador/eventos}" class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

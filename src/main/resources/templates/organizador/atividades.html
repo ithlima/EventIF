@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: page('Atividades — ' + ${evento.titulo}, ~{::#conteudo-pagina})}">
+<body>
+<div id="conteudo-pagina" class="container py-4">
+    <div class="mb-3">
+        <a th:href="@{/organizador/eventos}" class="btn btn-outline-secondary btn-sm">Voltar para Meus Eventos</a>
+    </div>
+
+    <section class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <h1 class="h3 mb-0" th:text="${evento.titulo}">Evento</h1>
+                <span class="badge"
+                      th:classappend="${evento.status.name() == 'PUBLICADO'} ? 'bg-success' : (${evento.status.name() == 'RASCUNHO'} ? 'bg-warning text-dark' : 'bg-secondary')"
+                      th:text="${evento.status.descricao}">Status</span>
+            </div>
+
+            <div class="eventif-meta-grid">
+                <div>
+                    <span class="eventif-meta-label">Categoria</span>
+                    <span class="eventif-meta-value" th:text="${evento.categoriaNome}">Categoria</span>
+                </div>
+                <div>
+                    <span class="eventif-meta-label">Período</span>
+                    <span class="eventif-meta-value">
+                        <span th:text="${#temporals.format(evento.dataInicio, 'dd/MM/yyyy')}">01/12/2026</span>
+                        a
+                        <span th:text="${#temporals.format(evento.dataFim, 'dd/MM/yyyy')}">03/12/2026</span>
+                    </span>
+                </div>
+                <div>
+                    <span class="eventif-meta-label">Local</span>
+                    <span class="eventif-meta-value" th:text="${evento.local}">Local</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div th:if="${evento.status.name() == 'ENCERRADO'}" class="alert alert-secondary shadow-sm mb-4">
+        Este evento está encerrado. Não é permitido adicionar, editar ou excluir atividades, mas você ainda pode consultar e ajustar presenças.
+    </div>
+
+    <div class="row g-4">
+        <div th:classappend="${evento.status.name() != 'ENCERRADO'} ? 'col-lg-7' : 'col-12'">
+            <div class="card shadow-sm">
+                <div class="card-header py-3">
+                    <h2 class="h5 mb-0">Atividades Cadastradas</h2>
+                </div>
+
+                <div class="card-body" th:if="${#lists.isEmpty(atividades)}">
+                    <p class="text-muted mb-0">Nenhuma atividade cadastrada para este evento.</p>
+                </div>
+
+                <div class="table-responsive" th:if="${!#lists.isEmpty(atividades)}">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>Atividade</th>
+                            <th>Horário</th>
+                            <th>Vagas</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="atv : ${atividades}">
+                            <td>
+                                <div class="fw-semibold" th:text="${atv.titulo}">Título</div>
+                                <div class="small text-muted">
+                                    <span th:text="${atv.tipo.descricao}">Palestra</span> —
+                                    <span th:text="${atv.ministrante}">Ministrante</span>
+                                    (<span th:text="${atv.cargaHoraria} + 'h'">2h</span>)
+                                </div>
+                            </td>
+                            <td class="small">
+                                <div th:text="${#temporals.format(atv.inicio, 'dd/MM/yyyy HH:mm')}">01/12/2026 09:00</div>
+                                <div class="text-muted" th:text="'até ' + ${#temporals.format(atv.fim, 'dd/MM/yyyy HH:mm')}">até 01/12/2026 11:00</div>
+                            </td>
+                            <td class="small" th:text="${atv.inscritos} + '/' + ${atv.vagas}">0/30</td>
+                            <td class="text-end">
+                                <div class="d-inline-flex flex-wrap justify-content-end gap-1">
+                                    <a th:if="${evento.status.name() != 'RASCUNHO'}"
+                                       th:href="@{/organizador/eventos/{eId}/atividades/{aId}/inscritos(eId=${evento.id}, aId=${atv.id})}"
+                                       class="btn btn-outline-eventif btn-sm">Inscritos / Presença</a>
+
+                                    <a th:if="${evento.status.name() != 'ENCERRADO'}"
+                                       th:href="@{/organizador/eventos/{eId}/atividades/{aId}/editar(eId=${evento.id}, aId=${atv.id})}"
+                                       class="btn btn-outline-secondary btn-sm">Editar</a>
+
+                                    <form th:if="${evento.status.name() != 'ENCERRADO'}"
+                                          th:action="@{/organizador/eventos/{eId}/atividades/{aId}/excluir(eId=${evento.id}, aId=${atv.id})}"
+                                          method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Excluir</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5" th:if="${evento.status.name() != 'ENCERRADO'}">
+            <div class="card shadow-sm">
+                <div class="card-header py-3">
+                    <h2 class="h5 mb-0" th:text="${modoEdicao} ? 'Editar Atividade' : 'Nova Atividade'">Nova Atividade</h2>
+                </div>
+                <div class="card-body">
+                    <div th:if="${erroNegocio}" class="alert alert-danger" role="alert" th:text="${erroNegocio}">
+                        Erro de validação.
+                    </div>
+
+                    <form th:action="${modoEdicao} ? @{/organizador/eventos/{eId}/atividades/{aId}(eId=${evento.id}, aId=${atividadeEdicaoId})} : @{/organizador/eventos/{eId}/atividades(eId=${evento.id})}"
+                          th:object="${atividadeForm}" method="post" novalidate>
+                        <div class="mb-3">
+                            <label for="titulo" class="form-label">Título</label>
+                            <input type="text" id="titulo" th:field="*{titulo}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('titulo')} ? ' is-invalid'" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('titulo')}" th:errors="*{titulo}"></div>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-sm-6">
+                                <label for="tipo" class="form-label">Tipo</label>
+                                <select id="tipo" th:field="*{tipo}" class="form-select"
+                                        th:classappend="${#fields.hasErrors('tipo')} ? ' is-invalid'" required>
+                                    <option value="">Selecione...</option>
+                                    <option th:each="t : ${tiposAtividade}"
+                                            th:value="${t}"
+                                            th:text="${t.descricao}">Palestra</option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('tipo')}" th:errors="*{tipo}"></div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <label for="ministrante" class="form-label">Ministrante</label>
+                                <input type="text" id="ministrante" th:field="*{ministrante}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('ministrante')} ? ' is-invalid'" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('ministrante')}" th:errors="*{ministrante}"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="inicio" class="form-label">Início</label>
+                            <input type="datetime-local" id="inicio" th:field="*{inicio}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('inicio')} ? ' is-invalid'" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('inicio')}" th:errors="*{inicio}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="fim" class="form-label">Término</label>
+                            <input type="datetime-local" id="fim" th:field="*{fim}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('fim')} ? ' is-invalid'" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('fim')}" th:errors="*{fim}"></div>
+                        </div>
+
+                        <div class="row g-2 mb-4">
+                            <div class="col-6">
+                                <label for="cargaHoraria" class="form-label">Carga horária (h)</label>
+                                <input type="number" id="cargaHoraria" min="1" th:field="*{cargaHoraria}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('cargaHoraria')} ? ' is-invalid'" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('cargaHoraria')}" th:errors="*{cargaHoraria}"></div>
+                            </div>
+                            <div class="col-6">
+                                <label for="vagas" class="form-label">Vagas</label>
+                                <input type="number" id="vagas" min="1" th:field="*{vagas}" class="form-control"
+                                       th:classappend="${#fields.hasErrors('vagas')} ? ' is-invalid'" required>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('vagas')}" th:errors="*{vagas}"></div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-eventif">
+                                <span th:text="${modoEdicao} ? 'Salvar atividade' : 'Adicionar atividade'">Salvar</span>
+                            </button>
+                            <a th:if="${modoEdicao}"
+                               th:href="@{/organizador/eventos/{eId}/atividades(eId=${evento.id})}"
+                               class="btn btn-outline-secondary">Cancelar edição</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

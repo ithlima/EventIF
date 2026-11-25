@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: page('Administração — Categorias', ~{::#conteudo-pagina})}">
+<body>
+<div id="conteudo-pagina" class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+        <div>
+            <h1 class="h2 mb-1">Administração de Categorias</h1>
+            <p class="text-muted small mb-0">Cadastre, edite e remova categorias de eventos acadêmicos.</p>
+        </div>
+        <ul class="nav nav-pills gap-1">
+            <li class="nav-item">
+                <a class="nav-link active eventif-pill-active" th:href="@{/admin/categorias}">Categorias</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-success" th:href="@{/admin/usuarios}">Usuários</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card shadow-sm">
+                <div class="card-header py-3">
+                    <h2 class="h5 mb-0">Categorias Cadastradas</h2>
+                </div>
+
+                <div class="card-body" th:if="${#lists.isEmpty(categorias)}">
+                    <p class="text-muted mb-0">Nenhuma categoria cadastrada até o momento.</p>
+                </div>
+
+                <div class="table-responsive" th:if="${!#lists.isEmpty(categorias)}">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th style="width: 80px;">ID</th>
+                            <th>Nome</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="cat : ${categorias}">
+                            <td class="text-muted" th:text="${cat.id}">1</td>
+                            <td class="fw-semibold" th:text="${cat.nome}">Tecnologia</td>
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-1">
+                                    <a th:href="@{/admin/categorias/{id}/editar(id=${cat.id})}"
+                                       class="btn btn-outline-secondary btn-sm">Editar</a>
+                                    <form th:action="@{/admin/categorias/{id}/excluir(id=${cat.id})}"
+                                          method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Excluir</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-header py-3">
+                    <h2 class="h5 mb-0" th:text="${modoEdicao} ? 'Editar Categoria' : 'Nova Categoria'">Nova Categoria</h2>
+                </div>
+                <div class="card-body">
+                    <form th:action="${modoEdicao} ? @{/admin/categorias/{id}(id=${categoriaEdicaoId})} : @{/admin/categorias}"
+                          th:object="${categoriaForm}" method="post" novalidate>
+                        <div class="mb-3">
+                            <label for="nome" class="form-label">Nome da categoria</label>
+                            <input type="text" id="nome" th:field="*{nome}" class="form-control"
+                                   th:classappend="${#fields.hasErrors('nome')} ? ' is-invalid'"
+                                   placeholder="Ex.: Computação, Extensão" required>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-eventif">
+                                <span th:text="${modoEdicao} ? 'Salvar alterações' : 'Cadastrar categoria'">Cadastrar</span>
+                            </button>
+                            <a th:if="${modoEdicao}" th:href="@{/admin/categorias}"
+                               class="btn btn-outline-secondary">Cancelar edição</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: page('Eventos Acadêmicos', ~{::#conteudo-pagina})}">
+<body>
+<div id="conteudo-pagina" class="container py-4">
+    <section class="eventif-hero shadow-sm mb-4">
+        <div class="row align-items-center g-3">
+            <div class="col-lg-7">
+                <h1 class="h2 mb-1" th:text="${tituloSistema}">EventIF</h1>
+                <p class="text-muted mb-2" th:text="${subtitulo}">Sistema de Gestão de Eventos Acadêmicos</p>
+                <p class="small text-secondary mb-0">
+                    Confira os eventos publicados, consulte a programação das atividades e acompanhe as vagas disponíveis.
+                </p>
+            </div>
+
+            <div class="col-lg-5">
+                <form th:action="@{/}" method="get" class="d-flex flex-column flex-sm-row justify-content-lg-end align-items-stretch align-items-sm-center gap-2">
+                    <label for="categoriaId" class="visually-hidden">Filtrar por categoria</label>
+                    <select id="categoriaId" name="categoriaId" class="form-select form-select-sm" style="min-width: 210px;">
+                        <option value="">Todas as categorias</option>
+                        <option th:each="cat : ${categorias}"
+                                th:value="${cat.id}"
+                                th:text="${cat.nome}"
+                                th:selected="${categoriaSelecionada != null and categoriaSelecionada == cat.id}">
+                            Categoria
+                        </option>
+                    </select>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-eventif btn-sm flex-grow-1 flex-sm-grow-0">Filtrar</button>
+                        <a th:if="${categoriaSelecionada != null}" th:href="@{/}" class="btn btn-outline-secondary btn-sm">Limpar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <div class="d-flex justify-content-between align-items-center mb-3" th:if="${!paginaEventos.empty}">
+        <h2 class="h5 mb-0">Eventos abertos</h2>
+        <span class="small text-muted" th:text="${paginaEventos.totalElements} + ' evento(s) publicado(s)'">
+            0 evento(s) publicado(s)
+        </span>
+    </div>
+
+    <section th:if="${paginaEventos.empty}" class="eventif-empty-state shadow-sm" role="status">
+        <h2 class="h5 mb-2">Nenhum evento publicado encontrado</h2>
+        <p class="text-muted small mb-3">
+            Não há eventos publicados disponíveis para o filtro escolhido no momento.
+        </p>
+        <a th:if="${categoriaSelecionada != null}" th:href="@{/}" class="btn btn-outline-eventif btn-sm">
+            Mostrar todas as categorias
+        </a>
+    </section>
+
+    <section th:if="${!paginaEventos.empty}" class="row g-4">
+        <div class="col-md-6 col-lg-4" th:each="evento : ${paginaEventos.content}">
+            <article class="card eventif-card-evento h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                        <span class="badge eventif-badge-categoria" th:text="${evento.categoriaNome}">Categoria</span>
+                        <span class="small text-muted text-end">
+                            <span th:text="${#temporals.format(evento.dataInicio, 'dd/MM/yyyy')}">01/12/2026</span>
+                            <span th:if="${evento.dataFim != evento.dataInicio}">
+                                a <span th:text="${#temporals.format(evento.dataFim, 'dd/MM/yyyy')}">03/12/2026</span>
+                            </span>
+                        </span>
+                    </div>
+
+                    <h3 class="h5 card-title mb-2" th:text="${evento.titulo}">Título do Evento</h3>
+                    <p class="small text-muted mb-2">
+                        <strong>Local:</strong> <span th:text="${evento.local}">Campus Fortaleza</span>
+                    </p>
+                    <p class="card-text small text-secondary flex-grow-1 mb-3"
+                       th:text="${#strings.abbreviate(evento.descricao, 140)}">
+                        Descrição resumida do evento.
+                    </p>
+
+                    <div class="pt-2 border-top mt-auto">
+                        <a class="btn btn-outline-eventif btn-sm w-100"
+                           th:href="@{/eventos/{id}(id=${evento.id})}">
+                            Ver detalhes e atividades
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <nav th:if="${paginaEventos.totalPages > 1}" aria-label="Paginação de eventos" class="mt-4">
+        <ul class="pagination justify-content-center mb-0">
+            <li class="page-item" th:classappend="${paginaEventos.first} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/(page=${paginaEventos.number - 1}, size=${paginaEventos.size}, categoriaId=${categoriaSelecionada})}">
+                    Anterior
+                </a>
+            </li>
+            <li class="page-item"
+                th:each="num : ${#numbers.sequence(0, paginaEventos.totalPages - 1)}"
+                th:classappend="${num == paginaEventos.number} ? 'active'">
+                <a class="page-link"
+                   th:text="${num + 1}"
+                   th:href="@{/(page=${num}, size=${paginaEventos.size}, categoriaId=${categoriaSelecionada})}">
+                    1
+                </a>
+            </li>
+            <li class="page-item" th:classappend="${paginaEventos.last} ? 'disabled'">
+                <a class="page-link"
+                   th:href="@{/(page=${paginaEventos.number + 1}, size=${paginaEventos.size}, categoriaId=${categoriaSelecionada})}">
+                    Próxima
+                </a>
+            </li>
+        </ul>
+    </nav>
+</div>
+</body>
+</html>

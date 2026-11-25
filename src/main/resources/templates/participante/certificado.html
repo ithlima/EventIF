@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{fragments/layout :: page('Certificado — ' + ${certificado.eventoTitulo}, ~{::#conteudo-pagina})}">
+<body>
+<div id="conteudo-pagina" class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4 no-print">
+        <a th:href="@{/inscricoes}" class="btn btn-outline-secondary btn-sm">Voltar para Minhas inscrições</a>
+        <div class="d-flex flex-wrap gap-2">
+            <a th:href="@{/certificados/eventos/{id}/pdf(id=${certificado.eventoId})}"
+               class="btn btn-outline-eventif btn-sm">Baixar PDF</a>
+            <button type="button" class="btn btn-eventif btn-sm" onclick="window.print()">Imprimir certificado</button>
+        </div>
+    </div>
+
+    <article class="certificado-box shadow-sm">
+        <div class="text-center mb-4">
+            <span class="certificado-selo mb-3">Instituto Federal de Educação, Ciência e Tecnologia — EventIF</span>
+            <h1 class="h2 fw-bold text-success mb-0">Certificado de Participação</h1>
+        </div>
+
+        <p class="certificado-texto text-center mb-4">
+            Certificamos que <strong th:text="${certificado.participanteNome}">Participante</strong>
+            participou do evento <strong th:text="${certificado.eventoTitulo}">Evento Acadêmico</strong>,
+            realizado em <span th:text="${certificado.eventoLocal}">Campus Fortaleza</span>,
+            no período de
+            <span th:text="${#temporals.format(certificado.eventoDataInicio, 'dd/MM/yyyy')}">01/12/2026</span>
+            a
+            <span th:text="${#temporals.format(certificado.eventoDataFim, 'dd/MM/yyyy')}">03/12/2026</span>,
+            perfazendo a carga horária total de
+            <strong><span th:text="${certificado.cargaHorariaTotal}">4</span> horas</strong>
+            nas atividades abaixo com presença confirmada:
+        </p>
+
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>Atividade</th>
+                    <th>Tipo</th>
+                    <th>Horário</th>
+                    <th class="text-end">Carga horária</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="atv : ${certificado.atividadesPresentes}">
+                    <td class="fw-semibold" th:text="${atv.titulo}">Atividade</td>
+                    <td th:text="${atv.tipo.descricao}">Minicurso</td>
+                    <td class="small">
+                        <span th:text="${#temporals.format(atv.inicio, 'dd/MM/yyyy HH:mm')}">01/12/2026 08:00</span>
+                        a
+                        <span th:text="${#temporals.format(atv.fim, 'dd/MM/yyyy HH:mm')}">01/12/2026 12:00</span>
+                    </td>
+                    <td class="text-end" th:text="${atv.cargaHoraria} + 'h'">4h</td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr class="table-light fw-bold">
+                    <td colspan="3" class="text-end">Carga horária total certificada:</td>
+                    <td class="text-end" th:text="${certificado.cargaHorariaTotal} + 'h'">4h</td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-2 pt-3 border-top small text-muted">
+            <span>Documento gerado dinamicamente pelo sistema EventIF</span>
+            <span th:text="${certificado.participanteEmail}">participante@eventif.edu.br</span>
+        </div>
+    </article>
+</div>
+</body>
+</html>
