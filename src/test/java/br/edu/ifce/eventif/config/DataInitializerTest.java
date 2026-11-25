@@ -125,7 +125,7 @@ class DataInitializerTest {
         }
 
         CertificadoView certificado = certificadoService.emitirCertificado(eventoJornada.getId(), participante.getId());
-        assertThat(certificado.cargaHorariaTotal()).isEqualTo(4);
+        assertThat(certificado.cargaHorariaTotal()).isEqualByComparingTo("4");
         assertThat(certificado.atividadesPresentes()).hasSize(1);
     }
 

@@ -294,6 +294,6 @@ class RepositoryConsultasTest {
 
         List<Inscricao> presentesPart1 = inscricaoRepository.findPresentesPorUsuarioIdEEventoId(part1.getId(), evento.getId());
         assertThat(presentesPart1).hasSize(1);
-        assertThat(presentesPart1.getFirst().getAtividade().getCargaHoraria()).isEqualTo(4);
+        assertThat(presentesPart1.getFirst().getAtividade().getCargaHoraria()).isEqualByComparingTo("4");
     }
 }

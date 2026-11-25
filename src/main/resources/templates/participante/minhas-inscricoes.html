@@ -46,7 +46,7 @@
                         <div th:text="${#temporals.format(item.inicio, 'dd/MM/yyyy HH:mm')}">01/12/2026 09:00</div>
                         <div class="text-muted" th:text="'até ' + ${#temporals.format(item.fim, 'dd/MM/yyyy HH:mm')}">até 01/12/2026 11:00</div>
                     </td>
-                    <td th:text="${item.cargaHoraria} + 'h'">2h</td>
+                    <td th:text="${item.cargaHorariaFormatada} + 'h'">2h</td>
                     <td>
                         <span th:if="${item.presente}" class="badge bg-success">Presença confirmada</span>
                         <span th:if="${!item.presente and item.eventoStatus.name() == 'ENCERRADO'}"
@@ -117,7 +117,7 @@
                         <div th:text="${#temporals.format(espera.inicio, 'dd/MM/yyyy HH:mm')}">01/12/2026 09:00</div>
                         <div class="text-muted" th:text="'até ' + ${#temporals.format(espera.fim, 'dd/MM/yyyy HH:mm')}">até 01/12/2026 11:00</div>
                     </td>
-                    <td th:text="${espera.cargaHoraria} + 'h'">2h</td>
+                    <td th:text="${espera.cargaHorariaFormatada} + 'h'">2h</td>
                     <td class="text-end">
                         <form th:action="@{/inscricoes/espera/{id}/cancelar(id=${espera.listaEsperaId})}"
                               method="post" class="d-inline">

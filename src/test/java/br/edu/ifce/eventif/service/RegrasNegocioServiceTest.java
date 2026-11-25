@@ -374,7 +374,7 @@ class RegrasNegocioServiceTest {
         CertificadoView certificado = certificadoService.emitirCertificado(evento.getId(), p1.getId());
         assertThat(certificado.participanteNome()).isEqualTo("Aluno Cert");
         assertThat(certificado.eventoTitulo()).isEqualTo("Congresso IFCE");
-        assertThat(certificado.cargaHorariaTotal()).isEqualTo(4);
+        assertThat(certificado.cargaHorariaTotal()).isEqualByComparingTo("4");
         assertThat(certificado.atividadesPresentes()).hasSize(1);
     }
 

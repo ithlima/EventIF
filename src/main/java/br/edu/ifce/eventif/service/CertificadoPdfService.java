@@ -77,7 +77,7 @@ public class CertificadoPdfService {
                     + ", perfazendo a carga horária total de ",
                 fonteCorpo
             ));
-            corpo.add(new Phrase(certificado.cargaHorariaTotal() + " horas", fonteDestaque));
+            corpo.add(new Phrase(certificado.getCargaHorariaTotalFormatada() + " horas", fonteDestaque));
             corpo.add(new Phrase(" nas atividades abaixo com presença confirmada:", fonteCorpo));
             document.add(corpo);
 
@@ -95,7 +95,7 @@ public class CertificadoPdfService {
                 adicionarCelulaCorpo(tabela, atv.tipo().getDescricao(), fonteCelula, Element.ALIGN_LEFT);
                 String horario = atv.inicio().format(FORMATO_DATA_HORA) + " a " + atv.fim().format(FORMATO_DATA_HORA);
                 adicionarCelulaCorpo(tabela, horario, fonteCelula, Element.ALIGN_LEFT);
-                adicionarCelulaCorpo(tabela, atv.cargaHoraria() + "h", fonteCelula, Element.ALIGN_RIGHT);
+                adicionarCelulaCorpo(tabela, atv.getCargaHorariaFormatada() + "h", fonteCelula, Element.ALIGN_RIGHT);
             }
 
             PdfPCell totalLabel = new PdfPCell(new Phrase("Carga horária total certificada:", fonteCabecalhoTabela));
@@ -106,7 +106,9 @@ public class CertificadoPdfService {
             totalLabel.setBorderColor(BORDA_TABELA);
             tabela.addCell(totalLabel);
 
-            PdfPCell totalValor = new PdfPCell(new Phrase(certificado.cargaHorariaTotal() + "h", fonteCabecalhoTabela));
+            PdfPCell totalValor = new PdfPCell(
+                new Phrase(certificado.getCargaHorariaTotalFormatada() + "h", fonteCabecalhoTabela)
+            );
             totalValor.setHorizontalAlignment(Element.ALIGN_RIGHT);
             totalValor.setPadding(8);
             totalValor.setBackgroundColor(FUNDO_CABECALHO_TABELA);

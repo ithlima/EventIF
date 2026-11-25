@@ -1,6 +1,7 @@
 package br.edu.ifce.eventif.dto;
 
 import br.edu.ifce.eventif.enums.TipoAtividade;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -9,8 +10,12 @@ import java.time.LocalDateTime;
 public record CertificadoAtividadeView(
     String titulo,
     TipoAtividade tipo,
-    Integer cargaHoraria,
+    BigDecimal cargaHoraria,
     LocalDateTime inicio,
     LocalDateTime fim
 ) {
+
+    public String getCargaHorariaFormatada() {
+        return CargaHorariaFormatter.formatar(cargaHoraria);
+    }
 }

@@ -1,6 +1,7 @@
 package br.edu.ifce.eventif.dto;
 
 import br.edu.ifce.eventif.enums.TipoAtividade;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -13,7 +14,7 @@ public record AtividadeComVagasView(
     String ministrante,
     LocalDateTime inicio,
     LocalDateTime fim,
-    Integer cargaHoraria,
+    BigDecimal cargaHoraria,
     Integer vagas,
     long inscritos,
     long vagasRestantes,
@@ -30,7 +31,7 @@ public record AtividadeComVagasView(
         String ministrante,
         LocalDateTime inicio,
         LocalDateTime fim,
-        Integer cargaHoraria,
+        BigDecimal cargaHoraria,
         Integer vagas,
         long inscritos,
         long vagasRestantes,
@@ -53,5 +54,9 @@ public record AtividadeComVagasView(
             false,
             0L
         );
+    }
+
+    public String getCargaHorariaFormatada() {
+        return CargaHorariaFormatter.formatar(cargaHoraria);
     }
 }

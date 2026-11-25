@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +48,8 @@ public class Atividade {
     @Column(name = "fim", nullable = false)
     private LocalDateTime fim;
 
-    @Column(name = "carga_horaria", nullable = false)
-    private Integer cargaHoraria;
+    @Column(name = "carga_horaria", nullable = false, precision = 6, scale = 2)
+    private BigDecimal cargaHoraria;
 
     @Column(name = "vagas", nullable = false)
     private Integer vagas;
@@ -73,7 +74,7 @@ public class Atividade {
         String ministrante,
         LocalDateTime inicio,
         LocalDateTime fim,
-        Integer cargaHoraria,
+        BigDecimal cargaHoraria,
         Integer vagas,
         Evento evento
     ) {
@@ -85,6 +86,19 @@ public class Atividade {
         this.cargaHoraria = cargaHoraria;
         this.vagas = vagas;
         this.evento = evento;
+    }
+
+    public Atividade(
+        String titulo,
+        TipoAtividade tipo,
+        String ministrante,
+        LocalDateTime inicio,
+        LocalDateTime fim,
+        int cargaHoraria,
+        Integer vagas,
+        Evento evento
+    ) {
+        this(titulo, tipo, ministrante, inicio, fim, BigDecimal.valueOf(cargaHoraria), vagas, evento);
     }
 
     public Long getId() {
@@ -135,11 +149,11 @@ public class Atividade {
         this.fim = fim;
     }
 
-    public Integer getCargaHoraria() {
+    public BigDecimal getCargaHoraria() {
         return cargaHoraria;
     }
 
-    public void setCargaHoraria(Integer cargaHoraria) {
+    public void setCargaHoraria(BigDecimal cargaHoraria) {
         this.cargaHoraria = cargaHoraria;
     }
 

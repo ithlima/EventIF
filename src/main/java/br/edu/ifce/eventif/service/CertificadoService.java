@@ -12,6 +12,7 @@ import br.edu.ifce.eventif.exception.RegraNegocioException;
 import br.edu.ifce.eventif.repository.EventoRepository;
 import br.edu.ifce.eventif.repository.InscricaoRepository;
 import br.edu.ifce.eventif.repository.UsuarioRepository;
+import java.math.BigDecimal;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,9 +67,9 @@ public class CertificadoService {
             .map(this::toCertificadoAtividadeView)
             .toList();
 
-        int cargaHorariaTotal = atividadesPresentes.stream()
-            .mapToInt(CertificadoAtividadeView::cargaHoraria)
-            .sum();
+        BigDecimal cargaHorariaTotal = atividadesPresentes.stream()
+            .map(CertificadoAtividadeView::cargaHoraria)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return new CertificadoView(
             evento.getId(),

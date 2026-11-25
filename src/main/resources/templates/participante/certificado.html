@@ -27,7 +27,7 @@
             a
             <span th:text="${#temporals.format(certificado.eventoDataFim, 'dd/MM/yyyy')}">03/12/2026</span>,
             perfazendo a carga horária total de
-            <strong><span th:text="${certificado.cargaHorariaTotal}">4</span> horas</strong>
+            <strong><span th:text="${certificado.cargaHorariaTotalFormatada}">4</span> horas</strong>
             nas atividades abaixo com presença confirmada:
         </p>
 
@@ -50,13 +50,13 @@
                         a
                         <span th:text="${#temporals.format(atv.fim, 'dd/MM/yyyy HH:mm')}">01/12/2026 12:00</span>
                     </td>
-                    <td class="text-end" th:text="${atv.cargaHoraria} + 'h'">4h</td>
+                    <td class="text-end" th:text="${atv.cargaHorariaFormatada} + 'h'">4h</td>
                 </tr>
                 </tbody>
                 <tfoot>
                 <tr class="table-light fw-bold">
                     <td colspan="3" class="text-end">Carga horária total certificada:</td>
-                    <td class="text-end" th:text="${certificado.cargaHorariaTotal} + 'h'">4h</td>
+                    <td class="text-end" th:text="${certificado.cargaHorariaTotalFormatada} + 'h'">4h</td>
                 </tr>
                 </tfoot>
             </table>

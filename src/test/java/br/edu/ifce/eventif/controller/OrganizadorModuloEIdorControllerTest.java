@@ -38,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -282,6 +283,52 @@ class OrganizadorModuloEIdorControllerTest {
                 .with(csrf()))
             .andExpect(status().is3xxRedirection());
         assertThat(atividadeRepository.existsById(atvSemInscritos.getId())).isFalse();
+
+        // Suporte a carga horaria fracionada (ponto e virgula) e mensagem amigavel em typeMismatch
+        mockMvc.perform(post("/organizador/eventos/" + evento.getId() + "/atividades")
+                .param("titulo", "Oficina Horario Quebrado")
+                .param("tipo", "OFICINA")
+                .param("ministrante", "Prof. Decimal")
+                .param("inicio", "2026-12-16T10:30")
+                .param("fim", "2026-12-16T12:00")
+                .param("cargaHoraria", "1.5")
+                .param("vagas", "20")
+                .with(user(orgPrincipal))
+                .with(csrf()))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/organizador/eventos/" + evento.getId() + "/atividades"));
+
+        mockMvc.perform(post("/organizador/eventos/" + evento.getId() + "/atividades")
+                .param("titulo", "Palestra Virgula")
+                .param("tipo", "PALESTRA")
+                .param("ministrante", "Prof. Virgula")
+                .param("inicio", "2026-12-16T14:00")
+                .param("fim", "2026-12-16T15:30")
+                .param("cargaHoraria", "1,5")
+                .param("vagas", "25")
+                .with(user(orgPrincipal))
+                .with(csrf()))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/organizador/eventos/" + evento.getId() + "/atividades"));
+
+        mockMvc.perform(get("/organizador/eventos/" + evento.getId() + "/atividades").with(user(orgPrincipal)))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("1,5h")));
+
+        mockMvc.perform(post("/organizador/eventos/" + evento.getId() + "/atividades")
+                .param("titulo", "Atividade Texto Invalido")
+                .param("tipo", "PALESTRA")
+                .param("ministrante", "Prof. Erro")
+                .param("inicio", "2026-12-16T16:00")
+                .param("fim", "2026-12-16T17:00")
+                .param("cargaHoraria", "abc")
+                .param("vagas", "20")
+                .with(user(orgPrincipal))
+                .with(csrf()))
+            .andExpect(status().isOk())
+            .andExpect(model().attributeHasFieldErrors("atividadeForm", "cargaHoraria"))
+            .andExpect(content().string(containsString("Informe uma carga horária")))
+            .andExpect(content().string(not(containsString("Failed to convert"))));
     }
 
     @Test

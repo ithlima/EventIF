@@ -75,7 +75,7 @@
                         <div th:text="${#temporals.format(atv.inicio, 'dd/MM/yyyy HH:mm')}">01/12/2026 09:00</div>
                         <div class="text-muted" th:text="'até ' + ${#temporals.format(atv.fim, 'dd/MM/yyyy HH:mm')}">até 01/12/2026 11:00</div>
                     </td>
-                    <td th:text="${atv.cargaHoraria} + 'h'">2h</td>
+                    <td th:text="${atv.cargaHorariaFormatada} + 'h'">2h</td>
                     <td class="small">
                         <div>
                             <strong th:text="${atv.vagasRestantes}">10</strong>

@@ -1,5 +1,6 @@
 package br.edu.ifce.eventif.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -14,7 +15,11 @@ public record CertificadoView(
     String eventoLocal,
     LocalDate eventoDataInicio,
     LocalDate eventoDataFim,
-    int cargaHorariaTotal,
+    BigDecimal cargaHorariaTotal,
     List<CertificadoAtividadeView> atividadesPresentes
 ) {
+
+    public String getCargaHorariaTotalFormatada() {
+        return CargaHorariaFormatter.formatar(cargaHorariaTotal);
+    }
 }

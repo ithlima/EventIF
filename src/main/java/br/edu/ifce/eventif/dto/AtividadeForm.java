@@ -1,10 +1,12 @@
 package br.edu.ifce.eventif.dto;
 
 import br.edu.ifce.eventif.enums.TipoAtividade;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -34,7 +36,8 @@ public class AtividadeForm {
 
     @NotNull(message = "A carga horária é obrigatória.")
     @Positive(message = "A carga horária deve ser maior que zero.")
-    private Integer cargaHoraria;
+    @Digits(integer = 4, fraction = 2, message = "A carga horária pode ter no máximo 2 casas decimais.")
+    private BigDecimal cargaHoraria;
 
     @NotNull(message = "O número de vagas é obrigatório.")
     @Positive(message = "O número de vagas deve ser maior que zero.")
@@ -49,7 +52,7 @@ public class AtividadeForm {
         String ministrante,
         LocalDateTime inicio,
         LocalDateTime fim,
-        Integer cargaHoraria,
+        BigDecimal cargaHoraria,
         Integer vagas
     ) {
         this.titulo = titulo;
@@ -59,6 +62,18 @@ public class AtividadeForm {
         this.fim = fim;
         this.cargaHoraria = cargaHoraria;
         this.vagas = vagas;
+    }
+
+    public AtividadeForm(
+        String titulo,
+        TipoAtividade tipo,
+        String ministrante,
+        LocalDateTime inicio,
+        LocalDateTime fim,
+        int cargaHoraria,
+        Integer vagas
+    ) {
+        this(titulo, tipo, ministrante, inicio, fim, BigDecimal.valueOf(cargaHoraria), vagas);
     }
 
     public String getTitulo() {
@@ -101,11 +116,11 @@ public class AtividadeForm {
         this.fim = fim;
     }
 
-    public Integer getCargaHoraria() {
+    public BigDecimal getCargaHoraria() {
         return cargaHoraria;
     }
 
-    public void setCargaHoraria(Integer cargaHoraria) {
+    public void setCargaHoraria(BigDecimal cargaHoraria) {
         this.cargaHoraria = cargaHoraria;
     }
 

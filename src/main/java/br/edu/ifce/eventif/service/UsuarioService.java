@@ -78,6 +78,8 @@ public class UsuarioService {
 
         validarNaoEhAdmin(usuario);
 
+        usuario.getPerfis().removeIf(perfil -> PerfilConstants.ROLE_PARTICIPANTE.equals(perfil.getNome()));
+
         Perfil perfilOrganizador = perfilRepository.findByNome(PerfilConstants.ROLE_ORGANIZADOR)
             .orElseGet(() -> perfilRepository.save(new Perfil(PerfilConstants.ROLE_ORGANIZADOR)));
 

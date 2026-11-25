@@ -11,6 +11,7 @@ import br.edu.ifce.eventif.exception.RegraNegocioException;
 import br.edu.ifce.eventif.repository.AtividadeRepository;
 import br.edu.ifce.eventif.repository.InscricaoRepository;
 import br.edu.ifce.eventif.repository.ListaEsperaRepository;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -211,7 +212,7 @@ public class AtividadeService {
             );
         }
 
-        if (form.getCargaHoraria() == null || form.getCargaHoraria() <= 0) {
+        if (form.getCargaHoraria() == null || form.getCargaHoraria().compareTo(BigDecimal.ZERO) <= 0) {
             throw new RegraNegocioException("A carga horária da atividade deve ser maior que zero.");
         }
 

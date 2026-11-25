@@ -1,6 +1,7 @@
 package br.edu.ifce.eventif.dto;
 
 import br.edu.ifce.eventif.enums.TipoAtividade;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -13,10 +14,14 @@ public record MinhaListaEsperaView(
     TipoAtividade atividadeTipo,
     LocalDateTime inicio,
     LocalDateTime fim,
-    Integer cargaHoraria,
+    BigDecimal cargaHoraria,
     Long eventoId,
     String eventoTitulo,
     LocalDateTime dataHoraEntrada,
     int posicaoFila
 ) {
+
+    public String getCargaHorariaFormatada() {
+        return CargaHorariaFormatter.formatar(cargaHoraria);
+    }
 }

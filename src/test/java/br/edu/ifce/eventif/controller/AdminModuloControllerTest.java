@@ -167,7 +167,13 @@ class AdminModuloControllerTest {
         Usuario aposConcessao = usuarioRepository.findByIdComPerfis(participante.getId()).orElseThrow();
         assertThat(aposConcessao.getPerfis())
             .extracting(Perfil::getNome)
-            .containsExactlyInAnyOrder(PerfilConstants.ROLE_PARTICIPANTE, PerfilConstants.ROLE_ORGANIZADOR);
+            .containsExactly(PerfilConstants.ROLE_ORGANIZADOR);
+
+        CustomUserDetails promovidoPrincipal = CustomUserDetails.fromUsuario(aposConcessao);
+        mockMvc.perform(get("/organizador/eventos").with(user(promovidoPrincipal)))
+            .andExpect(status().isOk());
+        mockMvc.perform(get("/inscricoes").with(user(promovidoPrincipal)))
+            .andExpect(status().isForbidden());
 
         mockMvc.perform(post("/admin/usuarios/" + participante.getId() + "/remover-organizador")
                 .with(user(adminPrincipal))

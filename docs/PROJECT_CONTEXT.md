@@ -50,7 +50,7 @@
 - **Listar inscritos e registrar presença:** Visitante (Não), Participante (Não), **Organizador (Apenas os seus)**, Admin (Não).
 - **Gerenciar categorias e usuários:** Visitante (Não), Participante (Não), Organizador (Não), **Admin (Sim)**.
 
-> **Nota de coerência:** Contas iniciais de demonstração possuem papéis distintos para respeitar literalmente a matriz. Contas criadas no cadastro público (`RF01`) recebem `ROLE_PARTICIPANTE` e, caso recebam `ROLE_ORGANIZADOR` pelo Admin (`RF04`), acumulam os dois perfis via `@ManyToMany`.
+> **Nota de coerência:** Para cumprir literalmente a Matriz de Acesso oficial, os perfis funcionais são mantidos de forma exclusiva na aplicação: ao conceder `ROLE_ORGANIZADOR` pelo Admin (`RF04`), a conta deixa de possuir `ROLE_PARTICIPANTE` (ficando restrita às ações de organizador); ao remover `ROLE_ORGANIZADOR`, volta a receber `ROLE_PARTICIPANTE`. Contas `ROLE_ADMIN` permanecem protegidas e não participam dessa alternância.
 
 ---
 
@@ -72,7 +72,7 @@ Não existe entidade JPA para Certificado (`RF14` é gerado dinamicamente a part
    - Atributos: `id` (`Long`), `titulo` (`String`), `descricao` (`String` / `TEXT`), `local` (`String`), `dataInicio` (`LocalDate`), `dataFim` (`LocalDate`), `status` (`StatusEvento`, `@Enumerated(EnumType.STRING)`).
    - Relacionamentos: `@ManyToOne(optional = false)` `Categoria` (`categoria_id`); `@ManyToOne(optional = false)` `Usuario` organizador (`organizador_id`); `@OneToMany(mappedBy = "evento")` `Atividade`.
 5. **`Atividade` (tabela `atividades`)**
-   - Atributos: `id` (`Long`), `titulo` (`String`), `tipo` (`TipoAtividade`, `@Enumerated(EnumType.STRING)`), `ministrante` (`String`), `inicio` (`LocalDateTime`), `fim` (`LocalDateTime`), `cargaHoraria` (`Integer`, em horas), `vagas` (`Integer`).
+   - Atributos: `id` (`Long`), `titulo` (`String`), `tipo` (`TipoAtividade`, `@Enumerated(EnumType.STRING)`), `ministrante` (`String`), `inicio` (`LocalDateTime`), `fim` (`LocalDateTime`), `cargaHoraria` (`BigDecimal` `DECIMAL(6,2)`, em horas — suporta horas fracionadas como `1,5h`), `vagas` (`Integer`).
    - Relacionamentos: `@ManyToOne(optional = false)` `Evento` (`evento_id`); `@OneToMany(mappedBy = "atividade")` `Inscricao`.
 6. **`Inscricao` (tabela `inscricoes`)**
    - Atributos: `id` (`Long`), `dataHora` (`LocalDateTime`), `presente` (`boolean`).

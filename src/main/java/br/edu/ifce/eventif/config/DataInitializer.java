@@ -117,6 +117,7 @@ public class DataInitializer implements ApplicationRunner {
         Perfil perfilAdmin = garantirPerfil(PerfilConstants.ROLE_ADMIN);
 
         garantirUsuario(adminNome, adminEmail, adminSenha, perfilAdmin);
+        higienizarPerfisOrganizadorExclusivo();
 
         if (!demoEnabled) {
             return;
@@ -322,6 +323,20 @@ public class DataInitializer implements ApplicationRunner {
     ) {
         if (!inscricaoRepository.existsByUsuarioIdAndAtividadeId(usuario.getId(), atividade.getId())) {
             inscricaoRepository.save(new Inscricao(dataHora, presente, usuario, atividade));
+        }
+    }
+
+    private void higienizarPerfisOrganizadorExclusivo() {
+        List<Usuario> usuarios = usuarioRepository.findAllByOrderByNomeAsc();
+        for (Usuario usuario : usuarios) {
+            boolean ehOrganizador = usuario.getPerfis().stream()
+                .anyMatch(perfil -> PerfilConstants.ROLE_ORGANIZADOR.equals(perfil.getNome()));
+            boolean ehParticipante = usuario.getPerfis().stream()
+                .anyMatch(perfil -> PerfilConstants.ROLE_PARTICIPANTE.equals(perfil.getNome()));
+            if (ehOrganizador && ehParticipante) {
+                usuario.getPerfis().removeIf(perfil -> PerfilConstants.ROLE_PARTICIPANTE.equals(perfil.getNome()));
+                usuarioRepository.save(usuario);
+            }
         }
     }
 }
